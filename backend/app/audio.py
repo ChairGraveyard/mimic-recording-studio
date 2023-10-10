@@ -18,16 +18,15 @@ class Audio:
 
     @staticmethod
     def trim_silence(path: str) -> AudioSegment:
-        sound = AudioSegment.from_wav(path + ".wav")
+        sound = AudioSegment.from_wav(f"{path}.wav")
         start_trim = Audio._detect_leading_silence(sound)
         end_trim = Audio._detect_leading_silence(sound.reverse())
         duration = len(sound)
-        trimmed_sound = sound[start_trim:duration - end_trim]
-        return trimmed_sound
+        return sound[start_trim:duration - end_trim]
 
     @staticmethod
     def save_audio(path: str, audio: AudioSegment):
-        audio.export(path + ".wav", format="wav")
+        audio.export(f"{path}.wav", format="wav")
 
     @staticmethod
     def get_audio_len(audio: AudioSegment) -> float:

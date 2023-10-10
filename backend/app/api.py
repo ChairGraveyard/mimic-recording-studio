@@ -20,10 +20,7 @@ class UserAPI:
         else:
             res = DB.save_user(user)
             if res.success:
-                return response(
-                    True,
-                    message="user %s created" % user["user_name"]
-                )
+                return response(True, message=f'user {user["user_name"]} created')
             else:
                 return response(False, message=res.message)
 
@@ -51,9 +48,7 @@ class AudioAPI:
                 audio_len = Audio.get_audio_len(trimmed_sound)
                 char_len = len(prompt)
                 res = DB.update_user_metrics(uuid, audio_len, char_len)
-                if res.success:
-                    return response(True)
-            return response(False)
+            return response(True) if res.success else response(False)
         except Exception as e:
             # TODO: log Exception
             print(e)
@@ -66,7 +61,7 @@ class AudioAPI:
             AudioFS.save_audio(path, audio)
             trimmed_sound = Audio.trim_silence(path)
             audio_len = Audio.get_audio_len(trimmed_sound)
-            os.remove(path + ".wav")
+            os.remove(f"{path}.wav")
             return response(True, data={"audio_len": audio_len})
         except Exception as e:
             print(e)

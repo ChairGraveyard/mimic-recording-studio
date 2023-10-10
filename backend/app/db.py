@@ -44,10 +44,7 @@ class UserModel(Model):
 
     @staticmethod
     def validate(user):
-        if user.get("uuid") and user.get("user_name"):
-            return True
-        else:
-            return False
+        return bool(user.get("uuid") and user.get("user_name"))
 
 
 # TODO: use this for language support
@@ -103,21 +100,16 @@ class DB:
             return response(True, data=data)
         except DoesNotExist:
             # TODO: log exceptions
-            return response(
-                False,
-                message="user %s does not exist" % uuid
-            )
+            return response(False, message=f"user {uuid} does not exist")
 
     @staticmethod
     def update_user_metrics(uuid: str, time: float, char_len: int) -> response:
         try:
-            query = UserModel \
-                .update(
-                    prompt_num=UserModel.prompt_num + 1,
-                    total_time_spoken=UserModel.total_time_spoken + time,
-                    len_char_spoken=UserModel.len_char_spoken + char_len
-                ) \
-                .where(uuid == uuid)
+            query = UserModel.update(
+                prompt_num=UserModel.prompt_num + 1,
+                total_time_spoken=UserModel.total_time_spoken + time,
+                len_char_spoken=UserModel.len_char_spoken + char_len,
+            ).where(True)
             query.execute()
             return response(True)
         except Exception as e:
@@ -128,8 +120,7 @@ class DB:
     def save_audio(audio_id: str, prompt: str,
                    language: str, uuid: str) -> response:
         try:
-            user = DB.UserModel.get(UserModel.uuid == uuid)
-            if user:
+            if user := DB.UserModel.get(UserModel.uuid == uuid):
                 DB.AudioModel.create(
                     audio_id=audio_id,
                     prompt=prompt,
@@ -138,10 +129,7 @@ class DB:
                 )
                 return response(True)
             else:
-                return response(
-                    False,
-                    message="user %s does not exist" % uuid
-                )
+                return response(False, message=f"user {uuid} does not exist")
         except Exception as e:
             print(e)
             return response(False, message="Exception thrown, check logs")
